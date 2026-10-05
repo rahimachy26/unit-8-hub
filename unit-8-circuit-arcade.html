@@ -189,6 +189,12 @@ header.top p{margin:0;max-width:62ch;color:#B9CFC4}
 @keyframes fok{50%{background:var(--good-soft)}}
 @keyframes fno{50%{background:var(--bad-soft)}}
 
+.codein{font-family:var(--font-num);text-transform:uppercase;letter-spacing:.25em;font-size:1.05rem;width:7.5em;padding:6px 10px;border:2px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);min-height:40px}
+.sendbox{border:2px solid var(--copper);background:var(--copper-soft);border-radius:12px;padding:14px 16px;margin:18px auto 0;max-width:620px;text-align:left;display:grid;gap:8px}
+.sendbox h3{font-size:1.1rem}
+.sendbox p{margin:0}
+.sendbox a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.chk{font-family:var(--font-num);font-weight:600;letter-spacing:.1em}
 footer{border-top:1px solid var(--line);padding-block:16px 30px;color:var(--muted);font-size:.85rem}
 footer p{margin:0 0 6px;max-width:80ch}
 
@@ -224,6 +230,7 @@ footer p{margin:0 0 6px;max-width:80ch}
       <button class="swatch" id="tn2" data-tint="#E4EEF8" aria-pressed="false" aria-label="Blue" style="background:#E4EEF8"></button>
       <button class="swatch" id="tn3" data-tint="#E5F2EA" aria-pressed="false" aria-label="Mint" style="background:#E5F2EA"></button>
     </div>
+    <div class="grp" id="meGrp"></div>
     <div class="grp"><span class="lbl">Spacing</span>
       <button class="seg" id="sp" aria-pressed="false">Wider</button>
     </div>
@@ -250,10 +257,33 @@ footer p{margin:0 0 6px;max-width:80ch}
 <footer>
   <div class="wrap">
     <p>Content from the Unit 8 lesson packs (electrical fundamentals, circuit theory and DC networks, semiconductors and signals) and Chapter 8 of Anderson et al. (2023) <span>Engineering and Manufacturing T Level: Core</span>, Hodder Education.</p>
-    <p>Best scores are kept in this browser only.</p>
+    <p>Best scores stay in this browser. Results reach your tutor only when you press Send my result. The form receives your hub code, the game, your score and what to go over, never your name.</p>
   </div>
 </footer>
 
+<script>
+"use strict";
+/* ==========================================================================
+   TUTOR SETTINGS. These are the only two lines in this file you need to edit.
+
+   1. FORM_PREFILL
+      The same results form prefill link as the other unit hubs. It must
+      contain all six markers:
+      LEARNERHERE GAMEHERE SCOREHERE MAXHERE CHECKHERE DETAILHERE
+      Leave it empty and learners copy their result instead of sending it.  */
+
+var FORM_PREFILL = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=4OQOG2ZRykO0ZwI86bscxNR7VxFPgPlFtWYRQ5GTq9JURDZDREtPVVJCRENQSjZDR1M4SDhBRE9OVS4u&re049bcefa5e4476497bd84dd677aa9f4=LEARNERHERE&r6a43447cc16d4a1baea9f286444c913d=GAMEHERE&r22ff8c6a3952409baea825d6fa34c60b=SCOREHERE&rebbeddb769ec428b8693ecc1671ab486=MAXHERE&r6a20ac96b3f94a2ca3c4719a9a08cc84=CHECKHERE&r6524c5af3f3047228701035c49a36fee=DETAILHERE";
+
+/*    2. CLASS_LIST
+      Each learner's name and hub code joined by an equals sign, separated
+      by a vertical bar, e.g. "Alex Example=K7PM|Bea Example=X2Q9".
+      Results carry the code, never the name.
+      IMPORTANT: this hub is on a public website, so leave CLASS_LIST empty
+      so no names are published. Learners type their code, or open their
+      personal link (the hub address ending ?c=THEIRCODE), which signs them in. */
+
+var CLASS_LIST = "";
+</script>
 <script>
 (function(){
 "use strict";
@@ -435,14 +465,63 @@ const GAMES=[
 {id:"sprint",name:"60 Second Sprint",desc:"True or false, as many as you can in a minute.",how:"Tap True or False, or press T or F on a keyboard. You get the corrections for any you miss at the end.",pool:()=>TF.filter(s=>inTopic(s[0])),min:3,run:runSprint}
 ];
 
+/* ---------- learner code and results form (same route as the other unit hubs) ---------- */
+const CLASS=(CLASS_LIST||"").split("|").map(x=>x.split("=")).filter(x=>x.length===2&&/^[A-Z0-9]{4}$/i.test(x[1].trim())).map(x=>({name:x[0].trim(),code:x[1].trim().toUpperCase()}));
+const SHARED_ME="tlhub.me";
+let me=null;
+function readShared(){try{const v=JSON.parse(localStorage.getItem(SHARED_ME));return v&&/^[A-Z0-9]{4}$/.test(v.code||"")?v:null;}catch(e){return null;}}
+function setMe(code){
+  if(code){const hit=CLASS.find(c=>c.code===code);me={code,name:hit?hit.name:code};try{localStorage.setItem(SHARED_ME,JSON.stringify(me));}catch(e){}}
+  else{me=null;try{localStorage.removeItem(SHARED_ME);}catch(e){}}
+  renderMe();
+}
+function renderMe(){
+  const g=$("#meGrp");
+  if(me){g.innerHTML=`<span class="lbl">Hub code</span><b class="chk">${esc(me.code)}</b><button class="seg" id="meOut">Change</button>`;$("#meOut").onclick=()=>setMe(null);}
+  else{g.innerHTML=`<label class="lbl" for="meIn">Your hub code</label><input class="codein" id="meIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7PM"><button class="seg" id="meGo">Save</button>`;
+    const inp=$("#meIn");inp.oninput=()=>{inp.value=inp.value.toUpperCase().replace(/[^A-Z0-9]/g,"");};
+    const go=()=>{if(/^[A-Z0-9]{4}$/.test(inp.value))setMe(inp.value);else{inp.focus();inp.setAttribute("aria-invalid","true");}};
+    $("#meGo").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go();};}
+}
+const sentName=t=>"8 "+t;
+function checkCode(code,game,score,max){
+  const s=String(code).toUpperCase()+"|"+sentName(game)+"|"+score+"|"+max;let h=0;
+  for(let k=0;k<s.length;k++)h+=s.charCodeAt(k)*(k+1)*7;
+  h+=11*Number(score)+13*Number(max);
+  return String(h%9973).padStart(4,"0");
+}
+function formsLink(game,score,max,detail){
+  let u=FORM_PREFILL;const rep=(t,v)=>{u=u.split(t).join(encodeURIComponent(v));};
+  rep("LEARNERHERE",me?me.code:"");rep("GAMEHERE",sentName(game));rep("SCOREHERE",String(score));rep("MAXHERE",String(max));
+  rep("CHECKHERE",checkCode(me?me.code:"",game,score,max));rep("DETAILHERE",String(detail||"").slice(0,900));
+  return u;
+}
+function resultLine(game,score,max){const c=me?me.code:"";const d=new Date();return `${c} | ${sentName(game)} | ${score} of ${max} | check ${checkCode(c,game,score,max)} | ${d.toLocaleDateString("en-GB")}`;}
+function sendHtml(game,score,max,detail){
+  if(!me)return `<div class="sendbox"><h3>Send this to your tutor</h3><p>Type your four character hub code to send your result.</p><div class="row"><input class="codein" id="sendIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Your hub code"><button class="btn" id="sendSave">Use this code</button></div></div>`;
+  if(!FORM_PREFILL)return `<div class="sendbox"><h3>Keep a copy</h3><p>This hub is not linked to a form yet. Copy this line and paste it where your tutor asks.</p><p class="chk">${esc(resultLine(game,score,max))}</p><div class="row"><button class="btn ghost" id="copyRes">Copy it</button></div></div>`;
+  return `<div class="sendbox"><h3>Send this to your tutor</h3><p>The form opens with your code, the game and your score filled in. Press Submit on the form.</p><p>Code <span class="chk">${esc(me.code)}</span> · check <span class="chk">${checkCode(me.code,game,score,max)}</span></p><div class="row"><a class="btn" id="sendRes" target="_blank" rel="noopener" href="${esc(formsLink(game,score,max,detail))}">Send my result</a><button class="btn ghost" id="copyRes">Copy it instead</button></div><p id="copyMsg" class="howto" aria-live="polite"></p></div>`;
+}
+function wireSend(box,game,score,max,detail){
+  const sv=box.querySelector("#sendSave");
+  if(sv){const inp=box.querySelector("#sendIn");inp.oninput=()=>{inp.value=inp.value.toUpperCase().replace(/[^A-Z0-9]/g,"");};
+    sv.onclick=()=>{if(/^[A-Z0-9]{4}$/.test(inp.value)){setMe(inp.value);box.innerHTML=sendHtml(game,score,max,detail);wireSend(box,game,score,max,detail);}else inp.focus();};}
+  const cp=box.querySelector("#copyRes");
+  if(cp)cp.onclick=()=>{const t=resultLine(game,score,max);const m=box.querySelector("#copyMsg");
+    try{navigator.clipboard.writeText(t).then(()=>{if(m)m.textContent="Copied. Paste it where your tutor asks.";},()=>{if(m)m.textContent=t;});}catch(e){if(m)m.textContent=t;}};
+}
+
 /* ---------- scoring ---------- */
 let score=0,cur=null;
 const setScore=v=>{score=v;$("#sc").textContent=v;};
 const bestKey=id=>"u8ca-best-"+id+"-"+topic;
 function finish(best){const b=store.get(bestKey(cur.id),0);if(score>b){store.set(bestKey(cur.id),score);$("#best").textContent=score;return true;}return false;}
-function doneScreen(stage,title,detail,reviewHtml){
-  const nb=finish();
-  stage.innerHTML=`<div class="done"><div class="tag">${esc(title)}</div><div class="big">${score}</div><p>${detail}${nb?" New best for this topic.":""}</p><div class="row" style="justify-content:center"><button class="btn" id="again">Play again</button><button class="btn ghost" id="toHub">Choose another game</button></div>${reviewHtml||""}</div>`;
+function doneScreen(stage,title,detail,reviewHtml,max,missed){
+  const nb=finish();const sc=Math.max(0,Math.min(score,max));
+  const tn=topic==="all"?"All topics":TOPICS.find(t=>t.k===topic).n;
+  const det=tn+". "+(missed&&missed.length?"To go over: "+missed.slice(0,8).join("; "):"All correct");
+  stage.innerHTML=`<div class="done"><div class="tag">${esc(title)}</div><div class="big">${sc}<small style="font-size:1.1rem;color:var(--muted)"> of ${max}</small></div><p>${detail}${nb?" New best for this topic.":""}</p><div class="row" style="justify-content:center"><button class="btn" id="again">Play again</button><button class="btn ghost" id="toHub">Choose another game</button></div><div id="sendWrap">${sendHtml(cur.name,sc,max,det)}</div>${reviewHtml||""}</div>`;
+  wireSend($("#sendWrap"),cur.name,sc,max,det);
   $("#again").onclick=()=>openGame(cur.id);$("#toHub").onclick=showHub;$("#again").focus();
 }
 const progress=(i,n)=>`<div class="prog" aria-hidden="true"><i style="width:${Math.round(i/n*100)}%"></i></div>`;
@@ -471,10 +550,10 @@ let timers=[];const stopTimers=()=>{timers.forEach(clearInterval);timers=[];docu
 
 /* ---------- Match Up ---------- */
 function runMatch(st,pool){
-  const rounds=Math.min(3,Math.ceil(pool.length/6));const deck=shuffle(pool);let round=0,misses=0;
+  const rounds=Math.min(3,Math.ceil(pool.length/6));const deck=shuffle(pool);let round=0,misses=0;const missT=[];const total=Math.min(deck.length,rounds*6);
   function next(){
     stopTimers();
-    if(round>=rounds||round*6>=deck.length){return doneScreen(st,"Match Up complete",`${misses} miss${misses===1?"":"es"} across ${rounds} round${rounds>1?"s":""}.`);}
+    if(round>=rounds||round*6>=deck.length){return doneScreen(st,"Match Up complete",`${misses} miss${misses===1?"":"es"} across ${rounds} round${rounds>1?"s":""}.`,"",total*2,missT);}
     const set=deck.slice(round*6,round*6+6);let sel=null,got=0;
     const terms=shuffle(set.map((p,i)=>({i,x:p[1]}))),means=shuffle(set.map((p,i)=>({i,x:p[2]})));
     st.innerHTML=progress(round,rounds)+`<div class="tag">Round ${round+1} of ${rounds}</div><div class="match"><div class="col" role="group" aria-label="Terms">${terms.map(t=>`<button class="mcard term" id="mt-${t.i}" data-i="${t.i}">${esc(t.x)}</button>`).join("")}</div><div class="col" role="group" aria-label="Meanings">${means.map(t=>`<button class="mcard mean" id="mm-${t.i}" data-i="${t.i}">${esc(t.x)}</button>`).join("")}</div></div><div aria-live="polite" id="mfb" class="howto" style="margin-top:12px"></div>`;
@@ -484,7 +563,7 @@ function runMatch(st,pool){
       if(!sel){$("#mfb").textContent="Pick a term on the left first.";return;}
       if(sel.dataset.i===b.dataset.i){sel.classList.remove("sel");sel.classList.add("got");b.classList.add("got");sel.disabled=true;b.disabled=true;setScore(score+2);got++;$("#mfb").textContent="Matched.";sel=null;
         if(got===set.length){round++;setTimeout(next,600);}}
-      else{misses++;setScore(Math.max(0,score-1));b.classList.remove("miss");void b.offsetWidth;b.classList.add("miss");$("#mfb").textContent="Not that one. Try another meaning.";}
+      else{misses++;const tt=deck.find(p=>p===set[+sel.dataset.i]);if(tt&&!missT.includes(tt[1]))missT.push(tt[1]);setScore(Math.max(0,score-1));b.classList.remove("miss");void b.offsetWidth;b.classList.add("miss");$("#mfb").textContent="Not that one. Try another meaning.";}
     });
   }
   next();
@@ -492,9 +571,9 @@ function runMatch(st,pool){
 
 /* ---------- Conveyor Sort ---------- */
 function runSort(st,pool){
-  const sets=shuffle(pool).slice(0,3);let si=0,wrong=[];
+  const sets=shuffle(pool).slice(0,3);let si=0,wrong=[];const total=sets.reduce((n,s)=>n+s.items.length,0);
   function playSet(){
-    if(si>=sets.length)return doneScreen(st,"Conveyor Sort complete",`${wrong.length} card${wrong.length===1?"":"s"} in the wrong bin.`,wrong.length?`<ol class="review">${wrong.map(w=>`<li><b>${esc(w[0])}</b> belongs in <b>${esc(w[1])}</b>.</li>`).join("")}</ol>`:"");
+    if(si>=sets.length)return doneScreen(st,"Conveyor Sort complete",`${wrong.length} card${wrong.length===1?"":"s"} in the wrong bin.`,wrong.length?`<ol class="review">${wrong.map(w=>`<li><b>${esc(w[0])}</b> belongs in <b>${esc(w[1])}</b>.</li>`).join("")}</ol>`:"",total,wrong.map(w=>w[0]+" is "+w[1]));
     const s=sets[si],items=shuffle(s.items);let k=0;
     function card(){
       if(k>=items.length){si++;return playSet();}
@@ -515,9 +594,9 @@ function runSort(st,pool){
 
 /* ---------- Sequence Builder ---------- */
 function runOrder(st,pool){
-  const sets=shuffle(pool).slice(0,4);let si=0;
+  const sets=shuffle(pool).slice(0,4);let si=0;const missO=[];
   function playSet(){
-    if(si>=sets.length)return doneScreen(st,"Sequence Builder complete","You score 3 for a first try, 2 for a second, then 1.");
+    if(si>=sets.length)return doneScreen(st,"Sequence Builder complete","You score 3 for a first try, 2 for a second, then 1.","",sets.length*3,missO);
     const s=sets[si];let order=shuffle(s.steps.map((x,i)=>i));
     while(order.every((v,i)=>v===i))order=shuffle(order);
     let tries=0,solved=false;
@@ -526,7 +605,7 @@ function runOrder(st,pool){
       st.querySelectorAll(".mv button").forEach(b=>b.onclick=()=>{const p=+b.dataset.p,q=p+ +b.dataset.d;[order[p],order[q]]=[order[q],order[p]];draw();const f=document.getElementById((+b.dataset.d<0?"up-":"dn-")+q);if(f&&!f.disabled)f.focus();});
       $("#chk").onclick=()=>{
         if(solved){si++;return playSet();}
-        tries++;const right=order.filter((v,i)=>v===i).length;
+        tries++;const right=order.filter((v,i)=>v===i).length;if(tries===1&&right!==order.length)missO.push(s.title);
         if(right===order.length){solved=true;const pts=Math.max(1,4-tries);setScore(score+pts);draw(true);$("#ofb").innerHTML=`<div class="fb ok"><strong>All in order. +${pts}</strong></div>`;$("#chk").focus();}
         else{draw(true);$("#ofb").innerHTML=`<div class="fb no"><strong>${right} of ${order.length} in the right place.</strong>Move the red steps and check again.</div>`;}
       };
@@ -538,9 +617,9 @@ function runOrder(st,pool){
 
 /* ---------- Number Crunch ---------- */
 function runCrunch(st,pool){
-  const N=8;let i=0,right=0;const bag=[];while(bag.length<N)bag.push(...shuffle(pool));
+  const N=8;let i=0,right=0;const bag=[];const missC=[];while(bag.length<N)bag.push(...shuffle(pool));
   function q(){
-    if(i>=N)return doneScreen(st,"Number Crunch complete",`${right} of ${N} correct.`);
+    if(i>=N)return doneScreen(st,"Number Crunch complete",`${right} of ${N} correct.`,"",N*2,missC);
     const c=bag[i].g();let hinted=false,answered=false;
     st.innerHTML=progress(i,N)+`<div class="tag">Question ${i+1} of ${N} · ${esc(TOPICS.find(t=>t.k===bag[i].t).n)}</div><p class="q">${esc(c.q)}</p><form id="cf" class="ansrow" autocomplete="off"><label for="cin" class="sr" style="position:absolute;left:-9999px">Your answer</label><input id="cin" inputmode="decimal" placeholder="answer"><span class="unit">${esc(c.u)}</span><button class="btn" type="submit" id="cgo">Check</button><button class="btn ghost" type="button" id="chint">Hint</button></form><div id="chbox"></div><div id="cfb" aria-live="polite"></div>`;
     const inp=$("#cin");inp.focus();
@@ -550,7 +629,7 @@ function runCrunch(st,pool){
       const v=parseFloat(inp.value.replace(/,/g,"").replace(/\s/g,""));
       if(isNaN(v)){$("#cfb").innerHTML=`<div class="fb no">Type a number, for example 4.8</div>`;return;}
       answered=true;const ok=Math.abs(v-c.a)<=Math.max(Math.abs(c.a)*0.02,0.005);
-      if(ok){right++;setScore(score+(hinted?1:2));}
+      if(ok){right++;setScore(score+(hinted?1:2));}else missC.push(c.h);
       $("#cfb").innerHTML=`<div class="fb ${ok?"ok":"no"}"><strong>${ok?"Correct.":"Not quite. The answer is "+fmt(c.a)+" "+esc(c.u)+"."}</strong>Worked method:<ol class="steps">${c.st.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></div>`;
       $("#cgo").textContent="Next";$("#chint").disabled=true;inp.readOnly=true;$("#cgo").focus();
     };
@@ -560,9 +639,9 @@ function runCrunch(st,pool){
 
 /* ---------- Fault Detective ---------- */
 function runDetect(st,pool){
-  const cases=shuffle(pool).slice(0,6);let i=0;
+  const cases=shuffle(pool).slice(0,6);let i=0;const missD=[];
   function c(){
-    if(i>=cases.length)return doneScreen(st,"Fault Detective complete",`Out of a possible ${cases.length*3} points.`);
+    if(i>=cases.length)return doneScreen(st,"Fault Detective complete",`Out of a possible ${cases.length*3} points.`,"",cases.length*3,missD);
     const k=cases[i];let shown=1,done=false;const opts=shuffle(k.opts.map((o,j)=>({o,j})));
     function draw(){
       st.innerHTML=progress(i,cases.length)+`<div class="tag">Case ${i+1} of ${cases.length} · worth <span class="pts">${4-shown}</span> point${shown===3?"":"s"} now</div><ul class="clues">${k.clues.slice(0,shown).map((x,n)=>`<li><b>Clue ${n+1}.</b> ${esc(x)}</li>`).join("")}</ul><p class="q" style="font-size:1.05rem">What is the most likely cause?</p><div class="opts">${opts.map(o=>`<button class="opt" id="op-${o.j}" data-j="${o.j}">${esc(o.o)}</button>`).join("")}</div><div class="row" style="margin-top:12px"><button class="btn ghost" id="more" ${shown>=k.clues.length?"disabled":""}>Reveal next clue</button></div><div id="dfb" aria-live="polite"></div>`;
@@ -570,7 +649,7 @@ function runDetect(st,pool){
       st.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
         if(done)return;done=true;const ok=+b.dataset.j===k.a;
         st.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.j===k.a)x.classList.add("ok");});
-        if(!ok)b.classList.add("no");else setScore(score+(4-shown));
+        if(!ok){b.classList.add("no");missD.push(k.opts[k.a]);}else setScore(score+(4-shown));
         $("#more").disabled=true;
         $("#dfb").innerHTML=`<div class="fb ${ok?"ok":"no"}"><strong>${ok?"Solved. +"+(4-shown):"Not this time."}</strong>${esc(k.why)}</div><div class="row" style="margin-top:12px"><button class="btn" id="dn">Next case</button></div>`;
         $("#dn").onclick=()=>{i++;c();};$("#dn").focus();
@@ -599,13 +678,13 @@ function gateSVG(type,a,b){
   return `<svg viewBox="0 0 230 100" width="420" role="img" aria-label="${type} gate with A = ${a?1:0}${one?"":" and B = "+(b?1:0)}">${inA}<path d="${body}" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>${bub?`<circle cx="${ox+6}" cy="50" r="6" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>`:""}<path d="M${outx} 50 H200" stroke="var(--line)" stroke-width="4"/><text x="203" y="56" font-size="18" font-weight="700">?</text><text x="${type.includes("OR")?92:88}" y="55" font-size="13" font-weight="700">${type}</text></svg>`;
 }
 function runLogic(st,pool){
-  const N=10;let i=0,right=0;
+  const N=10;let i=0,right=0;const missL=[];
   function q(){
-    if(i>=N)return doneScreen(st,"Logic Lab complete",`${right} of ${N} correct.`);
+    if(i>=N)return doneScreen(st,"Logic Lab complete",`${right} of ${N} correct.`,"",N,missL);
     const kind=pick(pool);let svg,ans,why,label;
-    {const t=pick(Object.keys(GATES)),a=Math.random()<.5,b=Math.random()<.5;svg=gateSVG(t,a,b);ans=!!GATES[t].f(a,b);why=GATES[t].rule;label="Logic gate";}
+    let gname;{const t=pick(Object.keys(GATES)),a=Math.random()<.5,b=Math.random()<.5;svg=gateSVG(t,a,b);ans=!!GATES[t].f(a,b);why=GATES[t].rule;label="Logic gate";gname=t+" gate";}
     st.innerHTML=progress(i,N)+`<div class="tag">${label} · ${i+1} of ${N}</div><p class="q">Is the output high (1) or low (0)?</p><div class="diagram">${svg}</div><div class="tf"><button class="t" id="lon">High · 1</button><button class="f" id="loff">Low · 0</button></div><div id="lfb" aria-live="polite"></div>`;
-    const go=v=>{$("#lon").disabled=$("#loff").disabled=true;const ok=v===ans;if(ok){right++;setScore(score+1);}
+    const go=v=>{$("#lon").disabled=$("#loff").disabled=true;const ok=v===ans;if(ok){right++;setScore(score+1);}else if(!missL.includes(gname))missL.push(gname);
       $("#lfb").innerHTML=`<div class="fb ${ok?"ok":"no"}" style="margin-inline:auto"><strong>${ok?"Correct.":"Not quite."} The output is ${ans?"high (1)":"low (0)"}.</strong>${esc(why)}</div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn" id="ln">Next</button></div>`;$("#ln").onclick=()=>{i++;q();};$("#ln").focus();};
     $("#lon").onclick=()=>go(true);$("#loff").onclick=()=>go(false);
   }
@@ -626,7 +705,7 @@ function runSprint(st,pool){
     document.onkeydown=e=>{if(e.key==="t"||e.key==="T")ans(true);if(e.key==="f"||e.key==="F")ans(false);};
     show();$("#tt").focus();
     timers.push(setInterval(()=>{left--;$("#tm").textContent=left;if(left<=0){stopTimers();
-      doneScreen(st,"Time up",`${score} right out of ${seen} answered.`,missed.length?`<ol class="review">${missed.map(m=>`<li>“${esc(m[1])}” is <b>${m[2]?"true":"false"}</b>. ${esc(m[3])}</li>`).join("")}</ol>`:"");}},1000));
+      doneScreen(st,"Time up",`${score} right out of ${seen} answered.`,missed.length?`<ol class="review">${missed.map(m=>`<li>“${esc(m[1])}” is <b>${m[2]?"true":"false"}</b>. ${esc(m[3])}</li>`).join("")}</ol>`:"",Math.max(seen,1),missed.map(m=>m[1]));}},1000));
   };
 }
 
@@ -663,7 +742,9 @@ $("#sp").onclick=()=>{prefs.wide=!prefs.wide;applyPrefs();};
   draw();window.addEventListener("resize",()=>{if(still)draw();});
 })();
 
-applyPrefs();renderTopics();renderGrid();
+me=readShared();
+try{const qc=(new URLSearchParams(location.search).get("c")||"").trim().toUpperCase();if(/^[A-Z0-9]{4}$/.test(qc)){setMe(qc);history.replaceState(null,"",location.pathname+location.hash);}}catch(e){}
+renderMe();applyPrefs();renderTopics();renderGrid();
 })();
 </script>
 </body>

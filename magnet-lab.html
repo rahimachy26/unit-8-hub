@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unit 8.1 Magnet Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&family=Lexend+Exa:wght@600&display=swap">
+<style>
+/* Layout: one centred column, a four-round stepper on top, one task card at a time. Palette taken from the Unit 8.1 dyslexia-friendly deck. */
+:root{
+  --bg:#FBF6EC; --card:#F3ECDC; --card-2:#FFFDF8; --fg:#16335B; --muted:#4F5B6B;
+  --line:#16335B; --north:#B5322A; --south:#16335B; --field:#0B6E4F;
+  --good:#0B6E4F; --good-bg:#DDEFE6; --bad:#B5322A; --bad-bg:#F8E1DE; --focus:#C77D12;
+  --border:#D9CFB8;
+  --font-body:"Lexend",Arial,Helvetica,sans-serif;
+  --font-display:"Lexend Exa","Lexend",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1A2B; --card:#18263C; --card-2:#1E2F49; --fg:#F3ECDC; --muted:#B3BCC9;
+  --line:#E6DCC6; --north:#FF8A7A; --south:#9CC0F0; --field:#5FD3A6;
+  --good:#5FD3A6; --good-bg:#173B32; --bad:#FF8A7A; --bad-bg:#47221F; --focus:#F2B55A; --border:#2C3E5A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1A2B; --card:#18263C; --card-2:#1E2F49; --fg:#F3ECDC; --muted:#B3BCC9;
+  --line:#E6DCC6; --north:#FF8A7A; --south:#9CC0F0; --field:#5FD3A6;
+  --good:#5FD3A6; --good-bg:#173B32; --bad:#FF8A7A; --bad-bg:#47221F; --focus:#F2B55A; --border:#2C3E5A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:18px;line-height:1.6;letter-spacing:.01em;padding-inline:16px;padding-block:24px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--font-display);font-size:clamp(26px,5vw,36px);line-height:1.2;margin:0;text-wrap:balance}
+h2{font-size:22px;margin:0;line-height:1.3;text-wrap:balance}
+p{margin:0}
+.steps{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}
+.steps li{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--border);font-size:15px;color:var(--muted)}
+.steps li .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--card);font-weight:700;font-size:13px}
+.steps li.on{border-color:var(--fg);color:var(--fg);font-weight:500}
+.steps li.done{color:var(--good);border-color:var(--good)}
+.card{background:var(--card);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:18px}
+.sub{color:var(--muted);font-size:16px}
+.btn{font:inherit;font-size:17px;font-weight:500;border-radius:12px;padding:12px 20px;border:2px solid var(--fg);background:var(--fg);color:var(--bg);cursor:pointer;min-height:48px}
+.btn.ghost{background:transparent;color:var(--fg)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+label{font-weight:500}
+input[type=text]{font:inherit;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card-2);color:var(--fg);width:100%;max-width:340px}
+.rounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.rounds div{background:var(--card-2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.rounds b{font-size:16px}.rounds span{font-size:14px;color:var(--muted)}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.tile{font:inherit;font-size:17px;text-align:left;padding:12px 14px;border-radius:12px;border:2px solid var(--border);background:var(--card-2);color:var(--fg);cursor:pointer;min-height:52px}
+.tile.sel{border-color:var(--fg);box-shadow:0 0 0 2px var(--fg) inset}
+.tile.ok{border-color:var(--good);background:var(--good-bg);color:var(--fg);cursor:default}
+.tile.no{border-color:var(--bad);background:var(--bad-bg)}
+@media (prefers-reduced-motion:no-preference){.tile.no{animation:shake .3s}}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.pics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.pic{font:inherit;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--card-2);color:var(--fg);cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pic svg{width:100%;height:auto;display:block}
+.pic .tag{font-weight:700;font-size:15px}
+.pic.ok,.opt.ok{border-color:var(--good);background:var(--good-bg)}
+.pic.no,.opt.no{border-color:var(--bad);background:var(--bad-bg)}
+.figure{background:var(--card-2);border-radius:12px;padding:12px}
+.figure svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+.opts{display:flex;flex-wrap:wrap;gap:10px}
+.opt{font:inherit;font-size:17px;padding:12px 22px;border-radius:12px;border:2px solid var(--border);background:var(--card-2);color:var(--fg);cursor:pointer;min-height:48px}
+.feedback{border-radius:12px;padding:14px 16px;font-size:17px;display:flex;flex-direction:column;gap:6px}
+.feedback.good{background:var(--good-bg)}.feedback.bad{background:var(--bad-bg)}
+.feedback strong{font-weight:700}
+.calc{display:flex;flex-direction:column;gap:12px}
+.given{display:flex;flex-wrap:wrap;gap:10px}
+.given span{background:var(--card-2);border-radius:10px;padding:8px 12px;font-variant-numeric:tabular-nums}
+.ans{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ans input{max-width:200px;font-variant-numeric:tabular-nums}
+.unit{font-weight:700}
+.work{font-variant-numeric:tabular-nums;line-height:1.8}
+.level{display:inline-block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:2px 10px;border-radius:999px;border:1.5px solid var(--fg);width:max-content}
+.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.err{color:var(--bad);font-size:15px}
+.score{display:flex;flex-direction:column;gap:12px}
+.bar{display:grid;grid-template-columns:minmax(110px,160px) 1fr auto;gap:12px;align-items:center;font-variant-numeric:tabular-nums}
+.track{height:14px;border-radius:7px;background:var(--card-2);overflow:hidden}
+.fill{height:100%;background:var(--field);border-radius:7px}
+.total{font-family:var(--font-display);font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+pre.result{white-space:pre-wrap;background:var(--card-2);border-radius:12px;padding:12px 14px;font:inherit;font-size:15px;margin:0;user-select:all}
+footer{font-size:14px;color:var(--muted)}
+@media (max-width:480px){.card{padding:18px}.match{grid-template-columns:1fr 1fr;gap:8px}.tile{font-size:15px;padding:10px}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.back{color:var(--fg);font-weight:500}
+.codein{font:inherit;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card-2);color:var(--fg);width:8ch;text-transform:uppercase;letter-spacing:.12em}
+.chk{font-weight:700;letter-spacing:.08em}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <a class="back" href="unit-8-circuit-arcade.html">← Unit 8 Circuit Arcade</a>
+    <span class="eyebrow">Core Paper 1 · Unit 8.1 Part B</span>
+    <h1>Magnet Lab</h1>
+    <p class="sub">Practise magnetic fields, flux, flux density and electromagnetism. Four short rounds, about 10 minutes.</p>
+  </header>
+  <ol class="steps" id="steps" aria-label="Rounds"></ol>
+  <main id="app" aria-live="polite"></main>
+  <footer>T Level Engineering and Manufacturing · The Manchester College</footer>
+</div>
+
+<script>
+"use strict";
+/* TUTOR SETTING: the same Unit 8 results form as the Circuit Arcade. */
+var FORM_PREFILL = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=4OQOG2ZRykO0ZwI86bscxNR7VxFPgPlFtWYRQ5GTq9JUMVJITkVMU0dQWkRLQzdTRVRUQ01IVDJRTy4u&ra55eb1bea7e04e69b23cc2b40c201077=LEARNERHERE&rc5f2df2db5064376ac8d205139a33016=GAMEHERE&r896d671aa4f04f1cbeb8a1e079d7ad29=SCOREHERE&r497c9ee95a734708b6eef0117b572a80=MAXHERE&r8641bc63e7304454bf4e6acdd03ecbaa=CHECKHERE&rf0a8b78706cb4a16acec2f876f0493c3=DETAILHERE";
+</script>
+<script>
+(function(){
+const app=document.getElementById('app'), stepsEl=document.getElementById('steps');
+const ROUNDS=[{name:'Match it',max:5},{name:'Field pictures',max:4},{name:'Calculate',max:4},{name:'True or false',max:7}];
+const S={stage:0,scores:[0,0,0,0]};
+const SHARED_ME="tlhub.me";let me=null;
+try{const v=JSON.parse(localStorage.getItem(SHARED_ME));if(v&&/^[A-Z0-9]{4}$/.test(v.code||""))me=v;}catch(e){}
+function setMe(code){if(code){me={code,name:code};try{localStorage.setItem(SHARED_ME,JSON.stringify(me));}catch(e){}}else{me=null;try{localStorage.removeItem(SHARED_ME);}catch(e){}}}
+try{const qc=(new URLSearchParams(location.search).get("c")||"").trim().toUpperCase();if(/^[A-Z0-9]{4}$/.test(qc)){setMe(qc);history.replaceState(null,"",location.pathname+location.hash);}}catch(e){}
+const GAME="Magnet Lab", sentName=t=>"8 "+t;
+function checkCode(code,game,score,max){const s=String(code).toUpperCase()+"|"+sentName(game)+"|"+score+"|"+max;let h=0;for(let k=0;k<s.length;k++)h+=s.charCodeAt(k)*(k+1)*7;h+=11*Number(score)+13*Number(max);return String(h%9973).padStart(4,"0");}
+function formsLink(score,max,detail){let u=FORM_PREFILL;const r=(t,v)=>{u=u.split(t).join(encodeURIComponent(v));};r("LEARNERHERE",me?me.code:"");r("GAMEHERE",sentName(GAME));r("SCOREHERE",String(score));r("MAXHERE",String(max));r("CHECKHERE",checkCode(me?me.code:"",GAME,score,max));r("DETAILHERE",String(detail||"").slice(0,900));return u;}
+function codeBox(id){return me?`<p>Hub code <span class="chk">${esc(me.code)}</span> <button class="btn ghost" id="${id}Out" style="min-height:36px;padding:4px 12px;font-size:15px">Change</button></p>`:`<div class="row"><label for="${id}In">Your hub code</label><input class="codein" id="${id}In" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7PM"><button class="btn ghost" id="${id}Go" style="min-height:44px">Save</button></div><p class="err" id="${id}Err" hidden>Your hub code has 4 letters or numbers.</p>`;}
+function wireCode(id,redraw){const o=document.getElementById(id+'Out');if(o)o.onclick=()=>{setMe(null);redraw()};const i=document.getElementById(id+'In');if(i){i.oninput=()=>{i.value=i.value.toUpperCase().replace(/[^A-Z0-9]/g,'');document.getElementById(id+'Err').hidden=true};const go=()=>{if(/^[A-Z0-9]{4}$/.test(i.value)){setMe(i.value);redraw()}else{document.getElementById(id+'Err').hidden=false;i.focus()}};document.getElementById(id+'Go').onclick=go;i.onkeydown=e=>{if(e.key==='Enter')go()}}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const fmt=x=>{const v=Number(Number(x).toPrecision(4));return v.toLocaleString('en-GB',{maximumSignificantDigits:4,useGrouping:false})};
+
+function renderSteps(){
+  stepsEl.innerHTML=ROUNDS.map((r,i)=>{const st=S.stage===i+1?'on':(S.stage>i+1?'done':'');return `<li class="${st}"><span class="n">${i+1}</span>${r.name}</li>`}).join('')+
+  `<li class="${S.stage===5?'on':''}"><span class="n">✓</span>Results</li>`;
+}
+function go(stage){S.stage=stage;renderSteps();[intro,round1,round2,round3,round4,results][stage]();window.scrollTo({top:0,behavior:'smooth'})}
+
+/* ---------- SVG helpers ---------- */
+function mag(x,y,w,h,left,right){
+  const c=l=>l==='N'?'var(--north)':'var(--south)';
+  return `<rect x="${x}" y="${y}" width="${w/2}" height="${h}" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+  <rect x="${x+w/2}" y="${y}" width="${w/2}" height="${h}" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+  <text x="${x+w/4}" y="${y+h/2+6}" text-anchor="middle" font-size="17" font-weight="700" fill="${c(left)}" font-family="Lexend,Arial">${left}</text>
+  <text x="${x+3*w/4}" y="${y+h/2+6}" text-anchor="middle" font-size="17" font-weight="700" fill="${c(right)}" font-family="Lexend,Arial">${right}</text>`;
+}
+const head=(x,y,dir)=>dir<0?`<polygon points="${x-6},${y} ${x+5},${y-5} ${x+5},${y+5}" fill="var(--field)"/>`:`<polygon points="${x+6},${y} ${x-5},${y-5} ${x-5},${y+5}" fill="var(--field)"/>`;
+const P=d=>`<path d="${d}" fill="none" stroke="var(--field)" stroke-width="2"/>`;
+function barField(dir){ /* dir 1 = correct (N to S outside), -1 = reversed */
+  let s='';
+  s+=P('M200 84 C240 40 60 40 100 84')+P('M200 84 C270 0 30 0 100 84')+P('M200 96 C240 140 60 140 100 96')+P('M200 96 C270 180 30 180 100 96');
+  [51,21,129,159].forEach(y=>s+=head(150,y,-dir));
+  s+=`<line x1="200" y1="90" x2="292" y2="90" stroke="var(--field)" stroke-width="2"/>`+head(250,90,dir);
+  s+=`<line x1="8" y1="90" x2="100" y2="90" stroke="var(--field)" stroke-width="2"/>`+head(50,90,dir);
+  return s+mag(100,78,100,24,'S','N');
+}
+function ringField(){
+  let s='';
+  [[70,28],[100,48],[130,72]].forEach(([rx,ry])=>{s+=`<ellipse cx="150" cy="90" rx="${rx}" ry="${ry}" fill="none" stroke="var(--field)" stroke-width="2"/>`+head(150,90-ry,-1)+head(150,90+ry,1)});
+  return s+mag(100,78,100,24,'S','N');
+}
+const svg=(inner,label,vb='0 0 300 180')=>`<svg viewBox="${vb}" role="img" aria-label="${esc(label)}">${inner}</svg>`;
+function pairPic(repel){
+  let s=mag(20,78,100,24,'S','N')+mag(180,78,100,24,repel?'N':'S',repel?'S':'N');
+  if(!repel){[84,90,96].forEach(y=>s+=`<line x1="120" y1="${y}" x2="180" y2="${y}" stroke="var(--field)" stroke-width="2"/>`);s+=head(150,90,1)}
+  else{s+=P('M120 85 Q144 85 146 40')+P('M120 95 Q144 95 146 140')+P('M180 85 Q156 85 154 40')+P('M180 95 Q156 95 154 140')}
+  return s;
+}
+
+/* ---------- Intro ---------- */
+function intro(){
+  app.innerHTML=`<section class="card">
+    <h2>Before you start</h2>
+    <div class="rounds">${ROUNDS.map((r,i)=>`<div><b>${i+1}. ${r.name}</b><span>${['Match each quantity to its unit','Read the field-line drawings','Work out flux and flux density','Spot the common mistakes'][i]}</span></div>`).join('')}</div>
+    <div>${codeBox('in')}<p class="sub">Use the same hub code as the Circuit Arcade, so your result reaches your tutor.</p></div>
+    <div class="row"><button class="btn" id="start">Start round 1</button></div>
+  </section>`;
+  wireCode('in',intro);
+  document.getElementById('start').onclick=()=>{S.scores=[0,0,0,0];go(1)};
+}
+
+/* ---------- Round 1: matching ---------- */
+function round1(){
+  const pairs=[['Magnetic flux (Φ)','weber (Wb)'],['Flux density (B)','tesla (T)'],['Field strength (H)','ampere per metre (A/m)'],['Magnetic force (F)','newton (N)'],['Inductance (L)','henry (H)']];
+  const left=shuffle(pairs.map((p,i)=>({t:p[0],i}))), right=shuffle(pairs.map((p,i)=>({t:p[1],i})));
+  let sel=null, matched=0, missed=new Set();
+  app.innerHTML=`<section class="card">
+    <h2>Round 1: Match it</h2>
+    <p class="sub">Tap a quantity, then tap its unit. Watch out: one unit shares a letter with a quantity's symbol.</p>
+    <div class="match"><div class="col" id="L">${left.map(o=>`<button class="tile" data-i="${o.i}">${o.t}</button>`).join('')}</div>
+    <div class="col" id="R">${right.map(o=>`<button class="tile" data-i="${o.i}">${o.t}</button>`).join('')}</div></div>
+    <div id="fb"></div><div class="row"><button class="btn" id="next" disabled>Next round</button></div></section>`;
+  const fb=document.getElementById('fb');
+  app.querySelectorAll('#L .tile').forEach(b=>b.onclick=()=>{if(b.classList.contains('ok'))return;app.querySelectorAll('#L .tile').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel=b});
+  app.querySelectorAll('#R .tile').forEach(b=>b.onclick=()=>{
+    if(b.classList.contains('ok'))return;
+    if(!sel){fb.innerHTML=`<p class="err">Tap a quantity on the left first.</p>`;return}
+    if(sel.dataset.i===b.dataset.i){
+      sel.classList.remove('sel');sel.classList.add('ok');b.classList.add('ok');sel.disabled=b.disabled=true;
+      if(!missed.has(sel.dataset.i))S.scores[0]++;
+      matched++;fb.innerHTML='';sel=null;
+      if(matched===pairs.length){fb.innerHTML=`<div class="feedback good"><strong>All matched. ${S.scores[0]} of 5 right first time.</strong><span>Remember: H is the symbol for field strength, but henry (H) is the unit of inductance.</span></div>`;document.getElementById('next').disabled=false}
+    }else{
+      missed.add(sel.dataset.i);b.classList.add('no');setTimeout(()=>b.classList.remove('no'),500);
+      fb.innerHTML=`<p class="err">Not that one. Try another unit.</p>`;
+    }
+  });
+  document.getElementById('next').onclick=()=>go(2);
+}
+
+/* ---------- Round 2: field pictures ---------- */
+function round2(){
+  const Q=[
+    {q:'Which drawing shows the field of a bar magnet correctly?',type:'pics',
+     opts:[{html:svg(barField(1),'Lines leave N and enter S'),ok:true},{html:svg(barField(-1),'Lines leave S and enter N'),ok:false},{html:svg(ringField(),'Lines circle round the magnet'),ok:false}],
+     why:'Outside the magnet, field lines leave the north pole and curve round into the south pole. Lines that circle round without touching the poles show the field of a wire, not a magnet.'},
+    {q:'Two magnets are placed like this. Will they attract or repel?',fig:svg(pairPic(false),'N facing S with lines across the gap'),opts:['Attract','Repel'],a:0,
+     why:'N faces S. The lines run straight across the gap, which pulls the magnets together. Unlike poles attract.'},
+    {q:'Now the second magnet is turned round. Attract or repel?',fig:svg(pairPic(true),'N facing N with lines bending away'),opts:['Attract','Repel'],a:1,
+     why:'N faces N. The lines push against each other and bend away. Like poles repel.'},
+    {q:'At which point is the magnetic field strongest?',fig:svg(barField(1)+`
+      <circle cx="207" cy="74" r="6" fill="var(--north)"/><text x="216" y="70" font-size="15" font-weight="700" fill="var(--fg)" font-family="Lexend,Arial">P</text>
+      <circle cx="270" cy="22" r="6" fill="var(--north)"/><text x="279" y="18" font-size="15" font-weight="700" fill="var(--fg)" font-family="Lexend,Arial">Q</text>
+      <circle cx="150" cy="36" r="6" fill="var(--north)"/><text x="159" y="34" font-size="15" font-weight="700" fill="var(--fg)" font-family="Lexend,Arial">R</text>`,'Bar magnet with points P near the north pole, Q far away and R above the middle'),
+     opts:['P','Q','R'],a:0,why:'P is right next to the north pole, where the lines are closest together. The closer the lines, the stronger the field.'}
+  ];
+  let k=0;
+  function show(){
+    const it=Q[k];
+    let body;
+    if(it.type==='pics'){
+      const o=shuffle(it.opts);
+      body=`<div class="pics">${o.map((x,i)=>`<button class="pic" data-ok="${x.ok}"><span class="tag">Drawing ${'ABC'[i]}</span>${x.html}</button>`).join('')}</div>`;
+    }else{
+      body=`<div class="figure">${it.fig}</div><div class="opts">${it.opts.map((t,i)=>`<button class="opt" data-ok="${i===it.a}">${t}</button>`).join('')}</div>`;
+    }
+    app.innerHTML=`<section class="card"><h2>Round 2: Field pictures</h2><span class="count">Question ${k+1} of ${Q.length}</span>
+      <p>${it.q}</p>${body}<div id="fb"></div><div class="row"><button class="btn" id="next" hidden>${k<Q.length-1?'Next question':'Next round'}</button></div></section>`;
+    const btns=app.querySelectorAll('.pic,.opt');
+    btns.forEach(b=>b.onclick=()=>{
+      const ok=b.dataset.ok==='true';
+      btns.forEach(x=>{x.disabled=true;if(x.dataset.ok==='true')x.classList.add('ok')});
+      if(!ok)b.classList.add('no');else S.scores[1]++;
+      document.getElementById('fb').innerHTML=`<div class="feedback ${ok?'good':'bad'}"><strong>${ok?'Correct.':'Not quite.'}</strong><span>${it.why}</span></div>`;
+      const n=document.getElementById('next');n.hidden=false;n.focus();
+    });
+    document.getElementById('next').onclick=()=>{k++;k<Q.length?show():go(3)};
+  }
+  show();
+}
+
+/* ---------- Round 3: calculations ---------- */
+function makeCalc(){
+  const L1=()=>{const f=pick([0.004,0.006,0.008,0.009,0.012]),a=pick([0.002,0.003,0.004]);return{lvl:'Low',q:`A flux of ${fmt(f)} Wb passes through an area of ${fmt(a)} m². Find the flux density.`,given:[`Φ = ${fmt(f)} Wb`,`A = ${fmt(a)} m²`],ans:f/a,unit:'T',
+    work:[`Formula: B = Φ ÷ A`,`Substitute: B = ${fmt(f)} ÷ ${fmt(a)}`,`Answer: B = ${fmt(f/a)} T`]}};
+  const L2=()=>{const b=pick([0.5,1.2,1.5,2]),a=pick([0.002,0.003,0.004,0.005]);return{lvl:'Moderate',q:`A field of flux density ${fmt(b)} T passes through ${fmt(a)} m². Find the flux.`,given:[`B = ${fmt(b)} T`,`A = ${fmt(a)} m²`],ans:b*a,unit:'Wb',
+    work:[`Rearrange: Φ = B × A`,`Substitute: Φ = ${fmt(b)} × ${fmt(a)}`,`Answer: Φ = ${fmt(b*a)} Wb`]}};
+  const L3=()=>{const m=pick([3,4,5,6]),a=pick([0.0016,0.002,0.0025]);return{lvl:'Advanced',q:`A flux of ${m} mWb passes through an area of ${fmt(a)} m². Find the flux density.`,given:[`Φ = ${m} mWb`,`A = ${fmt(a)} m²`],ans:m/1000/a,unit:'T',
+    work:[`Convert first: ${m} mWb = ${fmt(m/1000)} Wb`,`Formula: B = Φ ÷ A`,`Substitute: B = ${fmt(m/1000)} ÷ ${fmt(a)}`,`Answer: B = ${fmt(m/1000/a)} T`]}};
+  const L4=()=>{const m=pick([0.5,1,1.5]),c=pick([20,25,50]);return{lvl:'Extension',q:`A flux of ${fmt(m)} mWb passes through an area of ${c} cm². Find the flux density.`,given:[`Φ = ${fmt(m)} mWb`,`A = ${c} cm²`],ans:(m/1000)/(c/10000),unit:'T',
+    work:[`Convert flux: ${fmt(m)} mWb = ${fmt(m/1000)} Wb`,`Convert area: 1 m² = 10 000 cm², so ${c} cm² = ${fmt(c/10000)} m²`,`Formula: B = Φ ÷ A`,`Substitute: B = ${fmt(m/1000)} ÷ ${fmt(c/10000)}`,`Answer: B = ${fmt((m/1000)/(c/10000))} T`]}};
+  return [L1(),L2(),L3(),L4()];
+}
+function round3(){
+  const Q=makeCalc();let k=0;
+  function show(){
+    const it=Q[k];
+    app.innerHTML=`<section class="card calc"><h2>Round 3: Calculate</h2>
+      <div class="row"><span class="level">${it.lvl}</span><span class="count">Question ${k+1} of ${Q.length}</span></div>
+      <p>${it.q}</p>
+      <div class="given">${it.given.map(g=>`<span>${g}</span>`).join('')}</div>
+      <form class="ans" id="f" novalidate><label for="a" class="sr">Your answer in ${it.unit}</label>
+        <input type="text" id="a" inputmode="decimal" autocomplete="off" placeholder="Your answer"><span class="unit">${it.unit}</span>
+        <button class="btn" type="submit" id="chk">Check</button></form>
+      <p class="sub">Write the number only. Use a decimal point, for example 0.0045.</p>
+      <div id="fb"></div><div class="row"><button class="btn" id="next" hidden>${k<Q.length-1?'Next question':'Next round'}</button></div></section>`;
+    const inp=document.getElementById('a'), fb=document.getElementById('fb');
+    inp.oninput=()=>{if(fb.querySelector('.err'))fb.innerHTML=''};
+    document.getElementById('f').onsubmit=e=>{
+      e.preventDefault();
+      const raw=inp.value.replace(/,/g,'').trim(), v=parseFloat(raw);
+      if(raw===''||isNaN(v)){fb.innerHTML=`<p class="err">Type a number first, for example 2.5.</p>`;inp.focus();return}
+      const ok=Math.abs(v-it.ans)<=Math.abs(it.ans)*0.01+1e-12;
+      if(ok)S.scores[2]++;
+      inp.disabled=true;document.getElementById('chk').disabled=true;
+      fb.innerHTML=`<div class="feedback ${ok?'good':'bad'}"><strong>${ok?'Correct.':'Not quite. The answer is '+fmt(it.ans)+' '+it.unit+'.'}</strong><div class="work">${it.work.map(w=>`<div>${w}</div>`).join('')}</div></div>`;
+      const n=document.getElementById('next');n.hidden=false;n.focus();
+    };
+    document.getElementById('next').onclick=()=>{k++;k<Q.length?show():go(4)};
+    inp.focus();
+  }
+  show();
+}
+
+/* ---------- Round 4: true or false ---------- */
+function round4(){
+  const Q=shuffle([
+    ['Like poles attract.',false,'Like poles repel. Unlike poles (N and S) attract.'],
+    ['Magnetic field lines can cross each other.',false,'Field lines never cross.'],
+    ['Flux density is measured in tesla (T).',true,'Yes. 1 T = 1 Wb per square metre.'],
+    ['H, the magnetising force, is measured in newtons.',false,'H is measured in A/m. Like EMF, it is called a "force" but it is not measured in newtons.'],
+    ['A magnet held still inside a coil induces a voltage.',false,'A voltage is only induced while the flux is changing, so the magnet must be moving.'],
+    ['Adding an iron core to a coil increases the flux density.',true,'Yes. B = μ × H, and iron has a much higher permeability than air.'],
+    ['If the same flux passes through a smaller area, the flux density gets bigger.',true,'Yes. B = Φ ÷ A, so a smaller A gives a bigger B.']
+  ]);
+  let k=0;
+  function show(){
+    const [s,t,why]=Q[k];
+    app.innerHTML=`<section class="card"><h2>Round 4: True or false</h2><span class="count">Statement ${k+1} of ${Q.length}</span>
+      <p style="font-size:21px;font-weight:500">${s}</p>
+      <div class="opts"><button class="opt" data-v="true">True</button><button class="opt" data-v="false">False</button></div>
+      <div id="fb"></div><div class="row"><button class="btn" id="next" hidden>${k<Q.length-1?'Next statement':'See my results'}</button></div></section>`;
+    const btns=app.querySelectorAll('.opt');
+    btns.forEach(b=>b.onclick=()=>{
+      const ok=(b.dataset.v==='true')===t;if(ok)S.scores[3]++;
+      btns.forEach(x=>{x.disabled=true;if((x.dataset.v==='true')===t)x.classList.add('ok')});
+      if(!ok)b.classList.add('no');
+      document.getElementById('fb').innerHTML=`<div class="feedback ${ok?'good':'bad'}"><strong>${ok?'Correct.':'Not quite. It is '+(t?'true':'false')+'.'}</strong><span>${why}</span></div>`;
+      const n=document.getElementById('next');n.hidden=false;n.focus();
+    });
+    document.getElementById('next').onclick=()=>{k++;k<Q.length?show():go(5)};
+  }
+  show();
+}
+
+/* ---------- Results ---------- */
+function results(){
+  const total=S.scores.reduce((a,b)=>a+b,0), max=ROUNDS.reduce((a,r)=>a+r.max,0);
+  const pct=total/max;
+  const msg=pct>=0.85?'Excellent. You are ready for the exam questions on this topic.':pct>=0.6?'Good work. Look again at the rounds with the lowest score.':'Keep going. Go back over slides 15 to 19, then try again.';
+  const detail=ROUNDS.map((r,i)=>`${r.name} ${S.scores[i]}/${r.max}`).join('; ');
+  const line=()=>{const c=me?me.code:'';return `${c} | ${sentName(GAME)} | ${total} of ${max} | check ${checkCode(c,GAME,total,max)} | ${new Date().toLocaleDateString('en-GB')}`};
+  const sendBox=()=>me?(FORM_PREFILL?`<p>The form opens with your code, the game and your score filled in. Press Submit on the form.</p>
+      <p>Code <span class="chk">${esc(me.code)}</span> · check <span class="chk">${checkCode(me.code,GAME,total,max)}</span></p>
+      <div class="row"><a class="btn" target="_blank" rel="noopener" href="${esc(formsLink(total,max,detail))}">Send my result</a><button class="btn ghost" id="copy">Copy it instead</button></div>`
+      :`<p>Copy this line and paste it where your tutor asks.</p><pre class="result">${esc(line())}</pre><div class="row"><button class="btn ghost" id="copy">Copy it</button></div>`)
+    :`<p>Type your four character hub code to send your result.</p>${codeBox('rs')}`;
+  app.innerHTML=`<section class="card score"><h2>Your results</h2>
+    <div class="row" style="align-items:baseline;gap:10px"><span class="total">${total}/${max}</span><span class="sub">${msg}</span></div>
+    ${ROUNDS.map((r,i)=>`<div class="bar"><span>${r.name}</span><div class="track"><div class="fill" style="width:${S.scores[i]/r.max*100}%"></div></div><span>${S.scores[i]}/${r.max}</span></div>`).join('')}
+    <h2 style="font-size:19px">Send this to your tutor</h2>
+    <div id="send" style="display:flex;flex-direction:column;gap:12px">${sendBox()}</div>
+    <p id="cmsg" class="sub" role="status"></p>
+    <div class="row"><button class="btn ghost" id="again">Play again</button><a class="btn ghost" href="unit-8-circuit-arcade.html">Back to the arcade</a></div></section>`;
+  const wire=()=>{wireCode('rs',()=>{document.getElementById('send').innerHTML=sendBox();wire()});
+    const cp=document.getElementById('copy');if(cp)cp.onclick=()=>{const m=document.getElementById('cmsg'),t=line();
+      try{navigator.clipboard.writeText(t).then(()=>{m.textContent='Copied. Paste it where your tutor asks.'},()=>{m.textContent=t})}catch(e){m.textContent=t}}};
+  wire();
+  document.getElementById('again').onclick=()=>{S.scores=[0,0,0,0];go(1)};
+}
+
+go(0);
+})();
+</script>
+</body></html>

@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}img{max-width:100%}</style></head><body>
+<title>Kirchhoff Circuit Challenge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: workbench sheet — formula strip, then one card per circuit (diagram + answer panel) */
+:root{
+  --bg:#F2F5F7;--surface:#FFFFFF;--ink:#17212A;--muted:#5A6772;--line:#D3DBE1;
+  --copper:#AE5326;--copper-soft:#F6E6DC;--good:#1C7A4D;--good-soft:#E1F2E8;--bad:#B3261E;--bad-soft:#FBE5E3;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;--body:"IBM Plex Sans","Segoe UI",Arial,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11171C;--surface:#19222A;--ink:#E5EBEF;--muted:#94A2AD;--line:#2C3943;
+  --copper:#E58B5B;--copper-soft:#3A2519;--good:#52C690;--good-soft:#16301F;--bad:#F27369;--bad-soft:#3A1A18;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11171C;--surface:#19222A;--ink:#E5EBEF;--muted:#94A2AD;--line:#2C3943;
+  --copper:#E58B5B;--copper-soft:#3A2519;--good:#52C690;--good-soft:#16301F;--bad:#F27369;--bad-soft:#3A1A18;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,40px);line-height:1.05;margin:4px 0 6px;text-wrap:balance;letter-spacing:-.01em}
+.sub{color:var(--muted);max-width:60ch;margin:0}
+.scorebox{display:flex;align-items:center;gap:12px}
+.score{font-family:var(--mono);font-size:14px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.score b{font-size:18px;color:var(--copper);font-variant-numeric:tabular-nums}
+button{font:inherit;cursor:pointer;border-radius:8px}
+.btn{background:var(--ink);color:var(--bg);border:0;padding:9px 14px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+button:focus-visible,input:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.laws{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.law{border-top:3px solid var(--ink);padding-top:10px}
+.law h3{font-family:var(--display);font-size:15px;margin:0 0 2px}
+.law .f{font-family:var(--mono);font-size:15px;color:var(--copper)}
+.law p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}
+@media (max-width:720px){.card{grid-template-columns:1fr}}
+.fig{padding:14px;border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:
+  linear-gradient(var(--line) 1px,transparent 1px) 0 0/20px 20px,linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/20px 20px;background-color:var(--surface)}
+@media (max-width:720px){.fig{border-right:0;border-bottom:1px solid var(--line)}}
+.fig svg{width:100%;max-width:440px;height:auto;background:var(--surface);border-radius:6px}
+.panel{padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.qn{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--copper-soft);color:var(--copper)}
+.qtitle{font-family:var(--display);font-weight:700;font-size:18px;margin:0}
+.prompt{margin:0}
+.field{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.field label{min-width:150px;font-weight:500}
+.field input{width:110px;font-family:var(--mono);font-size:15px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.field input.ok{border-color:var(--good);background:var(--good-soft)}
+.field input.no{border-color:var(--bad);background:var(--bad-soft)}
+.unit{font-family:var(--mono);color:var(--muted)}
+.mark{font-family:var(--mono);font-size:13px}
+.mark.ok{color:var(--good)}.mark.no{color:var(--bad)}
+.err{font-size:13px;color:var(--bad)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.working{border-left:3px solid var(--copper);padding:8px 12px;background:var(--bg);font-family:var(--mono);font-size:13.5px;line-height:1.7;overflow-x:auto}
+.working .l{color:var(--muted);font-family:var(--body)}
+svg .w{stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round}
+svg .r{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+svg .cur{stroke:var(--copper);stroke-width:2;fill:none}
+svg .pl{stroke:var(--ink);stroke-width:2}
+svg .plt{stroke:var(--ink);stroke-width:5}
+svg .dot{fill:var(--ink)}
+svg .term{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+svg text{font-family:var(--mono);font-size:13px;fill:var(--ink)}
+svg text.u{fill:var(--copper);font-weight:500}
+svg text.m{fill:var(--muted);font-size:12px}
+svg .ah{fill:var(--copper)}
+footer{color:var(--muted);font-size:13px}
+.back8{display:inline-block;margin-bottom:10px;color:var(--copper);font-weight:600;text-decoration:none}
+.back8:hover{text-decoration:underline}
+.submit{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.submit h2{font-family:var(--display);font-size:20px;margin:0}
+.steps{margin:0;padding-left:20px;color:var(--muted)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row .fld{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px}
+.row input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+#summary{font-family:var(--mono);font-size:13.5px;white-space:pre-wrap;background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:12px;margin:0;overflow-x:auto}
+.btn.link{display:inline-block;text-decoration:none;background:var(--copper);color:#fff}
+.note{font-size:13px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back8" href="unit-8-circuit-arcade.html">← Unit 8 Circuit Arcade</a>
+      <div class="eyebrow">Engineering Common Core · Unit 8 electrical principles</div>
+      <h1>Kirchhoff Circuit Challenge</h1>
+      <p class="sub">Seven circuits. Use KCL at the junctions and KVL around the loops. Press <b>New numbers</b> for a fresh set of values with the same circuits.</p>
+    </div>
+    <div class="scorebox">
+      <div class="score">Score <b id="score">0</b> / <span id="total">7</span></div>
+      <button class="btn" id="newset" type="button">New numbers</button>
+    </div>
+  </header>
+
+  <section class="laws" aria-label="Key formulas">
+    <div class="law"><h3>Kirchhoff's current law</h3><div class="f">ΣI<sub>in</sub> = ΣI<sub>out</sub></div><p>At any junction. Charge is conserved.</p></div>
+    <div class="law"><h3>Kirchhoff's voltage law</h3><div class="f">ΣEMF = ΣIR</div><p>Around any closed loop. Energy is conserved.</p></div>
+    <div class="law"><h3>Potential divider</h3><div class="f">V<sub>out</sub> = V<sub>in</sub> × R₂ / (R₁ + R₂)</div><p>Series resistors share the supply in proportion to resistance.</p></div>
+  </section>
+
+  <main id="qs" style="display:flex;flex-direction:column;gap:16px"></main>
+
+  <section class="submit" aria-labelledby="subh">
+    <h2 id="subh">Send your result to your tutor</h2>
+    <ol class="steps"><li>Type your 4-character hub code (the same code you use in the Unit 8 hub).</li><li>Press <b>Send my result</b>. A Microsoft Form opens with your code and score filled in.</li><li>Press <b>Submit</b> on the form.</li></ol>
+    <div class="row">
+      <div class="fld"><label for="hubcode">Hub code</label><input id="hubcode" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. K7PM" style="text-transform:uppercase;letter-spacing:.2em;font-family:var(--mono);max-width:200px"></div>
+    </div>
+    <pre id="summary" aria-live="polite"></pre>
+    <div class="err" id="serr" hidden></div>
+    <div class="actions">
+      <a class="btn link" id="sendres" href="#" target="_blank" rel="noopener">Send my result</a>
+      <button class="btn ghost" type="button" id="copyres">Copy it instead</button>
+    </div>
+    <div class="note" id="copynote">You can send again after more questions. Your tutor sees each send.</div>
+  </section>
+
+  <footer>Answers within 2% are accepted. Give currents in amps and voltages in volts unless the unit says otherwise.</footer>
+</div>
+
+<script>
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const f=n=>String(+(+n).toFixed(3));
+const L=(x1,y1,x2,y2,c='w')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${c}"/>`;
+const P=d=>`<path d="${d}" class="w"/>`;
+const A=(x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="cur" marker-end="url(#ah)"/>`;
+const T=(x,y,s,c='',a='start')=>`<text x="${x}" y="${y}" class="${c}" text-anchor="${a}">${s}</text>`;
+const D=(x,y)=>`<circle cx="${x}" cy="${y}" r="4" class="dot"/>`;
+const RH=(x,y)=>`<rect x="${x-26}" y="${y-9}" width="52" height="18" rx="2" class="r"/>`;
+const RV=(x,y)=>`<rect x="${x-9}" y="${y-26}" width="18" height="52" rx="2" class="r"/>`;
+const CELL=(x,y)=>L(x-18,y-6,x+18,y-6,'pl')+L(x-9,y+6,x+9,y+6,'plt')+T(x+22,y-8,'+','m');
+const svg=(w,h,body,label)=>`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}"><defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L9 5L1 9z" class="ah"/></marker></defs>${body}</svg>`;
+
+const Q=[
+ {title:'Find the missing current',tag:'KCL',gen(){
+   const a=pick([5,6,8,10,12]),b=pick([1.5,2,3,4]),c=a-b;
+   return{svg:svg(360,200,
+     L(30,100,170,100)+A(70,100,110,100)+T(90,86,`I₁ = ${f(a)} A`,'','middle')+
+     P('M170 100 L230 50 H330')+A(260,50,300,50)+T(280,38,`I₂ = ${f(b)} A`,'','middle')+
+     P('M170 100 L230 150 H330')+A(260,150,300,150)+T(280,174,'I₃ = ?','u','middle')+D(170,100),
+     'One wire entering a junction and two leaving'),
+    prompt:`A current of ${f(a)} A enters the junction. ${f(b)} A leaves along the top branch. What current flows in the bottom branch?`,
+    inputs:[{label:'I₃',unit:'A',ans:c}],
+    work:`<span class="l">KCL at the junction:</span><br>I₁ = I₂ + I₃<br>${f(a)} = ${f(b)} + I₃<br>I₃ = ${f(a)} − ${f(b)} = <b>${f(c)} A</b>`};
+ }},
+ {title:'Current feeding three branches',tag:'KCL',gen(){
+   const o=[pick([1,2,3]),pick([0.5,1.5,2.5]),pick([2,4,0.8])],s=o[0]+o[1]+o[2];
+   return{svg:svg(360,200,
+     L(30,100,160,100)+A(60,100,100,100)+T(80,86,'I = ?','u','middle')+
+     P('M160 100 L220 40 H330')+A(255,40,295,40)+T(275,28,`${f(o[0])} A`,'','middle')+
+     L(160,100,330,100)+A(255,100,295,100)+T(275,88,`${f(o[1])} A`,'','middle')+
+     P('M160 100 L220 160 H330')+A(255,160,295,160)+T(275,184,`${f(o[2])} A`,'','middle')+D(160,100),
+     'One wire entering a junction and three leaving'),
+    prompt:`Three branches leave a junction carrying ${f(o[0])} A, ${f(o[1])} A and ${f(o[2])} A. What current enters the junction?`,
+    inputs:[{label:'I',unit:'A',ans:s}],
+    work:`<span class="l">KCL: current in = total current out</span><br>I = ${f(o[0])} + ${f(o[1])} + ${f(o[2])} = <b>${f(s)} A</b>`};
+ }},
+ {title:'Missing voltage in a series loop',tag:'KVL',gen(){
+   const [vs,v1,v2]=pick([[12,3,5],[12,4,2.5],[24,6,10],[9,2,4.5],[24,8,7]]),v3=vs-v1-v2;
+   return{svg:svg(380,220,
+     P('M50 104 V40 H84')+RH(110,40)+L(136,40,199,40)+RH(225,40)+P('M251 40 H320 V84')+RV(320,110)+P('M320 136 V180 H50 V116')+CELL(50,110)+
+     T(66,114,`${f(vs)} V`)+T(110,24,`V₁ = ${f(v1)} V`,'','middle')+T(225,24,`V₂ = ${f(v2)} V`,'','middle')+T(304,114,'V₃ = ?','u','end')+
+     A(205,180,165,180)+T(185,202,'I','m','middle'),
+     'Cell in series with three resistors'),
+    prompt:`A ${f(vs)} V supply drives three resistors in series. The voltmeter readings across R₁ and R₂ are ${f(v1)} V and ${f(v2)} V. Find the voltage across R₃.`,
+    inputs:[{label:'V₃',unit:'V',ans:v3}],
+    work:`<span class="l">KVL around the loop:</span><br>V<sub>s</sub> = V₁ + V₂ + V₃<br>${f(vs)} = ${f(v1)} + ${f(v2)} + V₃<br>V₃ = <b>${f(v3)} V</b>`};
+ }},
+ {title:'Two opposing cells',tag:'KVL',gen(){
+   const e1=pick([12,15,9]),e2=pick([3,6]),r1=pick([2,3,4]),r2=pick([1,2]),i=(e1-e2)/(r1+r2);
+   return{svg:svg(380,220,
+     P('M50 104 V40 H154')+RH(180,40)+P('M206 40 H320 V104')+CELL(50,110)+CELL(320,110)+P('M320 116 V180 H206')+RH(180,180)+P('M154 180 H50 V116')+
+     T(66,114,`E₁ = ${e1} V`)+T(304,114,`E₂ = ${e2} V`,'','end')+T(180,24,`R₁ = ${r1} Ω`,'','middle')+T(180,208,`R₂ = ${r2} Ω`,'','middle')+
+     A(90,40,130,40)+T(110,30,'I = ?','u','middle'),
+     'Two cells facing opposite ways with two resistors'),
+    prompt:`E₁ = ${e1} V and E₂ = ${e2} V push current in opposite directions around the loop. R₁ = ${r1} Ω and R₂ = ${r2} Ω. Find the current.`,
+    inputs:[{label:'I',unit:'A',ans:i}],
+    work:`<span class="l">KVL: opposing EMFs subtract</span><br>ΣEMF = ΣIR<br>${e1} − ${e2} = I(${r1} + ${r2})<br>I = ${e1-e2} / ${r1+r2} = <b>${f(i)} A</b>`};
+ }},
+ {title:'Potential divider output',tag:'KVL',gen(){
+   const vin=pick([12,9,5,24]),[r1,r2]=pick([[10,20],[1,2],[4.7,10],[22,10],[3,1]]),vo=vin*r2/(r1+r2);
+   return{svg:svg(360,240,
+     P('M60 114 V30 H200 V50')+RV(200,76)+L(200,102,200,150)+RV(200,176)+P('M200 202 V220 H60 V126')+CELL(60,120)+
+     L(200,128,294,128)+L(200,220,294,220)+D(200,128)+D(200,220)+`<circle cx="300" cy="128" r="6" class="term"/><circle cx="300" cy="220" r="6" class="term"/>`+
+     T(76,124,`${vin} V`)+T(218,80,`R₁ = ${r1} kΩ`)+T(218,180,`R₂ = ${r2} kΩ`)+T(300,178,'V<tspan dy="4" font-size="10">out</tspan><tspan dy="-4"> = ?</tspan>','u','middle'),
+     'Two resistors in series forming a potential divider'),
+    prompt:`R₁ = ${r1} kΩ and R₂ = ${r2} kΩ are connected across a ${vin} V supply. Find V<sub>out</sub>, the voltage across R₂.`,
+    inputs:[{label:'V<sub>out</sub>',unit:'V',ans:vo}],
+    work:`<span class="l">Divider rule (from KVL with one shared current):</span><br>V<sub>out</sub> = ${vin} × ${r2} / (${r1} + ${r2})<br>V<sub>out</sub> = <b>${f(vo)} V</b><br><span class="l">Check: V across R₁ = ${f(vin-vo)} V, and ${f(vin-vo)} + ${f(vo)} = ${vin} V</span>`};
+ }},
+ {title:'Parallel branches',tag:'KCL + KVL',gen(){
+   const vs=pick([12,6,24]),r1=pick([4,6,12]),r2=pick([3,8,24]),i1=vs/r1,i2=vs/r2,it=i1+i2;
+   return{svg:svg(400,220,
+     P('M40 104 V40 H300 V84')+L(180,40,180,84)+RV(180,110)+RV(300,110)+L(180,136,180,180)+P('M300 136 V180 H40 V116')+CELL(40,110)+D(180,40)+D(180,180)+
+     T(56,114,`${vs} V`)+T(196,114,`R₁ = ${r1} Ω`)+T(316,114,`R₂ = ${r2} Ω`)+
+     A(85,40,125,40)+T(105,30,'I = ?','u','middle')+A(300,56,300,76)+T(312,62,'I₂ = ?','u'),
+     'Cell feeding two resistors in parallel'),
+    prompt:`R₁ = ${r1} Ω and R₂ = ${r2} Ω are in parallel across a ${vs} V supply. Find the current through R₂ and the total current from the supply.`,
+    inputs:[{label:'I₂',unit:'A',ans:i2},{label:'Total I',unit:'A',ans:it}],
+    work:`<span class="l">KVL: each parallel branch has the full ${vs} V across it</span><br>I₁ = ${vs} / ${r1} = ${f(i1)} A<br>I₂ = ${vs} / ${r2} = <b>${f(i2)} A</b><br><span class="l">KCL at the top junction:</span><br>I = I₁ + I₂ = ${f(i1)} + ${f(i2)} = <b>${f(it)} A</b>`};
+ }},
+ {title:'Series resistor with a parallel pair',tag:'KCL + KVL',gen(){
+   const [r2,r3,rp]=pick([[6,12,4],[6,3,2],[10,10,5],[20,30,12],[4,12,3]]),r1=pick([2,4,6,8]),i=pick([0.5,1,1.5,2]),vs=i*(r1+rp),vp=i*rp,i3=vp/r3,i2=vp/r2;
+   return{svg:svg(420,220,
+     P('M40 104 V40 H84')+RH(110,40)+L(136,40,330,40)+L(230,40,230,84)+L(330,40,330,84)+RV(230,110)+RV(330,110)+L(230,136,230,180)+P('M330 136 V180 H40 V116')+CELL(40,110)+D(230,40)+D(230,180)+
+     T(56,114,`${f(vs)} V`)+T(110,24,`R₁ = ${r1} Ω`,'','middle')+T(214,114,`R₂ = ${r2} Ω`,'','end')+T(346,114,`R₃ = ${r3} Ω`)+
+     A(160,40,200,40)+T(180,30,'I = ?','u','middle')+A(330,56,330,76)+T(342,62,'I₃ = ?','u'),
+     'R1 in series with R2 and R3 in parallel'),
+    prompt:`R₁ = ${r1} Ω is in series with R₂ = ${r2} Ω and R₃ = ${r3} Ω in parallel. The supply is ${f(vs)} V. Find the supply current and the current through R₃.`,
+    inputs:[{label:'Supply I',unit:'A',ans:i},{label:'I₃',unit:'A',ans:i3}],
+    work:`<span class="l">1. Parallel pair:</span> 1/R<sub>p</sub> = 1/${r2} + 1/${r3} → R<sub>p</sub> = ${rp} Ω<br><span class="l">2. Total:</span> R = ${r1} + ${rp} = ${r1+rp} Ω, I = ${f(vs)} / ${r1+rp} = <b>${f(i)} A</b><br><span class="l">3. KVL:</span> V across pair = ${f(vs)} − (${f(i)} × ${r1}) = ${f(vp)} V<br><span class="l">4. Branch:</span> I₃ = ${f(vp)} / ${r3} = <b>${f(i3)} A</b><br><span class="l">5. KCL check:</span> I₂ = ${f(i2)} A, and ${f(i2)} + ${f(i3)} = ${f(i)} A ✓`};
+ }}
+];
+
+/* TUTOR SETTING: the Unit 8 results form, same as the Unit 8 circuit arcade (markers LEARNERHERE GAMEHERE SCOREHERE MAXHERE CHECKHERE DETAILHERE) */
+const FORM_PREFILL="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=4OQOG2ZRykO0ZwI86bscxNR7VxFPgPlFtWYRQ5GTq9JUMVJITkVMU0dQWkRLQzdTRVRUQ01IVDJRTy4u&ra55eb1bea7e04e69b23cc2b40c201077=LEARNERHERE&rc5f2df2db5064376ac8d205139a33016=GAMEHERE&r896d671aa4f04f1cbeb8a1e079d7ad29=SCOREHERE&r497c9ee95a734708b6eef0117b572a80=MAXHERE&r8641bc63e7304454bf4e6acdd03ecbaa=CHECKHERE&rf0a8b78706cb4a16acec2f876f0493c3=DETAILHERE";
+const GAME_NAME="8 Kirchhoff Circuit Challenge";
+function checkCode(code,game,score,max){let t=String(code).toUpperCase()+"|"+game+"|"+score+"|"+max,h=0;for(let k=0;k<t.length;k++)h+=t.charCodeAt(k)*(k+1)*7;h+=11*Number(score)+13*Number(max);return String(h%9973).padStart(4,"0");}
+function hubCode(){return document.getElementById('hubcode').value.trim().toUpperCase();}
+let state=[],setNo=0;
+function render(){
+  const host=document.getElementById('qs');host.innerHTML='';
+  setNo++;state=Q.map((q,n)=>{const g=q.gen();g.done=false;g.tries=0;g.solvedAt=0;g.peeked=false;return g;});
+  state.forEach((g,n)=>{
+    const card=document.createElement('article');card.className='card';
+    card.innerHTML=`<div class="fig">${g.svg}</div><div class="panel">
+      <div class="qhead"><span class="qn">Q${n+1}</span><span class="tag">${Q[n].tag}</span></div>
+      <h2 class="qtitle">${Q[n].title}</h2><p class="prompt">${g.prompt}</p>
+      ${g.inputs.map((inp,k)=>`<div class="field"><label for="q${n}a${k}">${inp.label}</label><input id="q${n}a${k}" inputmode="decimal" autocomplete="off"><span class="unit">${inp.unit}</span><span class="mark" id="m${n}a${k}"></span></div>`).join('')}
+      <div class="err" id="e${n}" hidden></div>
+      <div class="actions"><button class="btn" type="button" data-check="${n}">Check</button><button class="btn ghost" type="button" data-show="${n}">Show working</button></div>
+      <div class="working" id="w${n}" hidden>${g.work}</div></div>`;
+    host.appendChild(card);
+  });
+  updateScore();
+}
+function check(n){
+  const g=state[n],err=document.getElementById('e'+n);let all=true,empty=false;
+  g.inputs.forEach((inp,k)=>{const el=document.getElementById(`q${n}a${k}`);if(el.value.trim()===''||isNaN(parseFloat(el.value)))empty=true;});
+  if(empty){err.textContent='Enter a number in every box first.';err.hidden=false;return;}
+  err.hidden=true;if(!g.done)g.tries++;
+  g.inputs.forEach((inp,k)=>{
+    const el=document.getElementById(`q${n}a${k}`),m=document.getElementById(`m${n}a${k}`),v=parseFloat(el.value);
+    const ok=Math.abs(v-inp.ans)<=Math.max(Math.abs(inp.ans)*0.02,0.011);
+    el.classList.toggle('ok',ok);el.classList.toggle('no',!ok);
+    m.className='mark '+(ok?'ok':'no');m.textContent=ok?'Correct':'Try again';
+    if(!ok)all=false;
+  });
+  if(all&&!g.done){g.done=true;g.solvedAt=g.tries;}
+  if(all){document.getElementById('w'+n).hidden=false;}
+  updateScore();
+}
+function updateScore(){document.getElementById('score').textContent=state.filter(s=>s.done).length;document.getElementById('total').textContent=state.length;buildSummary();}
+function result(){
+  const code=hubCode(),sc=state.filter(x=>x.done).length,mx=state.length;
+  const first=state.filter(x=>x.done&&x.solvedAt===1&&!x.peeked).length;
+  const togo=state.map((g,n)=>g.done?null:`Q${n+1} ${Q[n].title}`).filter(Boolean);
+  const helped=state.map((g,n)=>g.done&&(g.solvedAt>1||g.peeked)?`Q${n+1}`:null).filter(Boolean);
+  const detail=`First try correct: ${first} of ${mx}. `+(helped.length?`Needed more tries or the working: ${helped.join(', ')}. `:'')+(togo.length?`To go over: ${togo.join('; ')}`:'All correct');
+  return{code,sc,mx,detail,chk:checkCode(code,GAME_NAME,sc,mx)};
+}
+function buildSummary(){
+  const r=result(),ok=/^[A-Z0-9]{4}$/.test(r.code);
+  document.getElementById('summary').textContent=`${ok?r.code:'(hub code)'} | ${GAME_NAME} | ${r.sc} of ${r.mx} | check ${ok?r.chk:'----'}\n${r.detail}`;
+  const a=document.getElementById('sendres');
+  if(ok){let u=FORM_PREFILL;const rep=(t,v)=>{u=u.split(t).join(encodeURIComponent(v));};
+    rep('LEARNERHERE',r.code);rep('GAMEHERE',GAME_NAME);rep('SCOREHERE',String(r.sc));rep('MAXHERE',String(r.mx));rep('CHECKHERE',r.chk);rep('DETAILHERE',r.detail.slice(0,900));a.href=u;}
+  else a.href='#';
+}
+
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-check]'),s=e.target.closest('[data-show]');
+  if(c)check(+c.dataset.check);
+  if(s){const w=document.getElementById('w'+s.dataset.show);w.hidden=!w.hidden;if(!w.hidden&&!state[+s.dataset.show].done){state[+s.dataset.show].peeked=true;buildSummary();}s.textContent=w.hidden?'Show working':'Hide working';}
+  if(e.target.id==='newset')render();
+  if(e.target.closest('#sendres')&&!/^[A-Z0-9]{4}$/.test(hubCode())){e.preventDefault();const se=document.getElementById('serr');se.textContent='Enter your 4-character hub code first.';se.hidden=false;document.getElementById('hubcode').focus();return;}
+  if(e.target.closest('#sendres')){document.getElementById('copynote').textContent='The form is opening in a new tab. Press Submit on it.';}
+  if(e.target.id==='copyres'){
+    const serr=document.getElementById('serr'),note=document.getElementById('copynote');
+    if(!/^[A-Z0-9]{4}$/.test(hubCode())){serr.textContent='Enter your 4-character hub code first.';serr.hidden=false;return;}
+    serr.hidden=true;buildSummary();const t=document.getElementById('summary').textContent;
+    const sel=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('summary'));const x=getSelection();x.removeAllRanges();x.addRange(r);note.textContent='The result is selected. Press Ctrl+C (or Cmd+C) to copy it.';};
+    try{navigator.clipboard.writeText(t).then(()=>{note.textContent='Copied. Paste it where your tutor asks.';},sel);}catch(_){sel();}
+  }
+});
+document.addEventListener('input',e=>{if(e.target.id==='hubcode'){document.getElementById('serr').hidden=true;buildSummary();return;}const m=e.target.id.match(/^q(\d+)a/);if(m){document.getElementById('e'+m[1]).hidden=true;e.target.classList.remove('ok','no');}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const m=e.target.id&&e.target.id.match(/^q(\d+)a/);if(m)check(+m[1]);}});
+(function(){const el=document.getElementById('hubcode');let c='';
+  try{const q=(new URLSearchParams(location.search).get('c')||'').trim().toUpperCase();if(/^[A-Z0-9]{4}$/.test(q))c=q;}catch(_){}
+  if(!c){try{const v=JSON.parse(localStorage.getItem('tlhub.me'));if(v&&/^[A-Z0-9]{4}$/.test(v.code||''))c=v.code;}catch(_){}}
+  if(c)el.value=c;
+  el.addEventListener('change',()=>{const v=el.value.trim().toUpperCase();if(/^[A-Z0-9]{4}$/.test(v)){try{localStorage.setItem('tlhub.me',JSON.stringify({code:v,name:v}));}catch(_){}}});
+})();
+render();
+</script>
+
+</body></html>

@@ -481,7 +481,7 @@ function setMe(code){
 function renderMe(){
   const g=$("#meGrp");
   if(me){g.innerHTML=`<span class="lbl">Hub code</span><b class="chk">${esc(me.code)}</b><button class="seg" id="meOut">Change</button>`;$("#meOut").onclick=()=>setMe(null);}
-  else{g.innerHTML=`<label class="lbl" for="meIn">Your hub code</label><input class="codein" id="meIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7PM"><button class="seg" id="meGo">Save</button>`;
+  else{g.innerHTML=`<label class="lbl" for="meIn">Your hub code</label><input class="codein" id="meIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="from slip"><button class="seg" id="meGo">Save</button>`;
     const inp=$("#meIn");inp.oninput=()=>{inp.value=inp.value.toUpperCase().replace(/[^A-Z0-9]/g,"");};
     const go=()=>{if(/^[A-Z0-9]{4}$/.test(inp.value))setMe(inp.value);else{inp.focus();inp.setAttribute("aria-invalid","true");}};
     $("#meGo").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go();};}

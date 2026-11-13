@@ -1,6 +1,92 @@
-<!doctype html>
-<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Unit 8 Circuit Arcade</title>
-<script>location.replace("unit-8-circuit-arcade.html" + location.search + location.hash);</script>
-<meta http-equiv="refresh" content="0; url=unit-8-circuit-arcade.html">
-</head><body style="font-family:Arial,sans-serif;padding:24px"><p><a href="unit-8-circuit-arcade.html">Open the Unit 8 Circuit Arcade</a></p></body></html>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0f2a3a;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#13202b;padding:20px}
+.card{background:#fff;border-radius:18px;padding:30px 28px;max-width:400px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.badge{display:inline-block;background:#f2b705;color:#13202b;font-weight:800;border-radius:8px;padding:4px 10px;font-size:13px;letter-spacing:.04em}
+h1{margin:12px 0 6px;font-size:24px}
+p{margin:0 0 18px;color:#4a5866;line-height:1.5}
+label{font-weight:700;display:block;margin-bottom:6px}
+input{width:100%;font:inherit;font-size:20px;letter-spacing:.08em;text-transform:uppercase;padding:12px 14px;border:2px solid #cfd8df;border-radius:12px}
+input:focus{outline:none;border-color:#1f7a8c}
+button{margin-top:14px;width:100%;font:inherit;font-weight:800;font-size:17px;background:#1f7a8c;color:#fff;border:0;border-radius:12px;padding:13px;cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+.msg{min-height:22px;margin-top:12px;font-weight:600}
+.bad{color:#b3261e}.ok{color:#2a7d4f}
+.small{font-size:13px;color:#6b7785;margin-top:14px}
+</style>
+</head>
+<body>
+<main class="card" id="gate" hidden>
+  <span class="badge">UNIT 8 HUB</span>
+  <h1>Enter your hub code</h1>
+  <p>This hub is for learners in our group. Type the code from your hub code slip.</p>
+  <form id="f" autocomplete="off">
+    <label for="c">Hub code</label>
+    <input id="c" placeholder="e.g. VOLT-12345" autocapitalize="characters" spellcheck="false" required>
+    <button id="b" type="submit">Open the hub</button>
+    <div class="msg" id="m" role="status"></div>
+  </form>
+  <div class="small">Lost your code? Ask your tutor. Don't share your code with anyone.</div>
+</main>
+<noscript><p style="color:#fff">Please turn on JavaScript to open the hub.</p></noscript>
+<script id="payload" type="application/json">{"v":1,"it":250000,"salt":"2KrC/sYUfUzLUtQf6Vzs5Q==","slots":[{"iv":"eYJ626H6RXJMxjEi","ct":"2TlMb6lHrnfyNEIiC+KmxICJ+Wt4iDXfTPca35JIH+lMY9igGsbGxhni87a7Smcr"},{"iv":"qIImWZzMBc9Tc7c+","ct":"m8OWz7fay9K9/zg1lXDnXDmPx4AJMAf+zowT/pFMDSYw1b5PgBsgOGuaJkt2btkg"},{"iv":"5Ks5Ym4Byt+Z0ZmS","ct":"o20/eW6YHrPJi+I5ijBBy4yBU1muGAuXPVCjSJjbiHkfL2H0Lbly+PcR2EvWVII2"},{"iv":"bsnT+tfw1YLhy0kw","ct":"BKbvWjFqoRESQwiQ1DXdWjW0ichPxNQiXaKf8lo8/QNjhMvYiTPqL2cpJeiRxAiS"},{"iv":"bpZzbFWru/y6mgYe","ct":"MS7E2KG2p4Gl96vyxFiCkokfK0oedEIGvZiWR6fBNdI4jUFFYhvAPLtTqCnH/j33"},{"iv":"UqIDdoqM/aWKq8Zi","ct":"KT44KfrlsysAfFK1OjIkHsjM9pvmBC5bKvwqvY0yWXpmdwRO7legoKzyuxqPYEGM"},{"iv":"MpCyE1m+Isdj7ZpY","ct":"slq4+Zgb7itYgiASMGp6spYTorPWMc6JwmGkBQ2QhsuYePybN42vAmwerfYJdN/P"},{"iv":"+qEdlIVn2YpZeZW7","ct":"5FWSXz3SLB/xbXK16YjoXDybtu1hHbyRz24vm7m7ce9cmgJdQwMuU/MwiyKTRwvw"},{"iv":"StoSmSzqEDkLuWjm","ct":"XtPLCd4OBoDsF2O7W5PJQf6TQmc7HP5ub6bsl9nVLECSmyAA9u9SKsOTcN1fvyvk"},{"iv":"uf5motiMavwYJTfT","ct":"QD+ZIX/trJJYKEWNhunQ4ebI2hTaJsyxu12OyaBU4Sri6tDf3UcxQzA8MlIdhNyc"},{"iv":"FPVeR0gnWdae5rpC","ct":"sBMzYf6k/6UUV+BkpSpHg+Vjmgb3RozwaNZInRwEgvLnIaJd5T7XbX9LGie01h8c"},{"iv":"y8evbo7gXn+Eq/JO","ct":"G7HxZVQyuN0RC8L9COv3wjOZZckx6VpG5AAtDdpHYHjYI1HNa9NcxGkD2wNxlsJW"},{"iv":"IR629xzX5hm/QEnm","ct":"JIDqZC5dzWDoQQ/cg2dgjVzsNi7LlPuTw1BTzIF1BL0mU2zrLj2UnuOQwe9r1pvl"},{"iv":"VCJonQnVfHWkvmRV","ct":"OHYa20JT7I2SpfCMl24hdaYihlQwZtAm8BWdIBaGo+6UmDba5WL2WFvXBfzUlk4v"},{"iv":"COlFCzw2iBakVgWr","ct":"HVLuYMpUmNuB3sNA7D4cXapi7me5x1g0egih+7luEHZWc0LpB1ZAI0JGmeKomU13"},{"iv":"FlFQ0HqhOl8tJ2FG","ct":"3cMvymiubC13IxWhcvlpGt1Lgo58oup1wx7o2IbYxO8VKM3EiK2a22f7MJpDTdU/"},{"iv":"LHV7r45T4Z4d7SW0","ct":"1urCzeEA4MtqlJQcezdzd9Ivz9IvYHtudmp0NPTcEsGA/vg0ie3IfOE1Y8b1xKiQ"},{"iv":"Dv66nC5wlhArtz3y","ct":"h+LucjD/7x8M2DfI0VUB3bpPtHmzdZ31jaWm9WG7zwpQAjCK3iTda2++poV/UbHU"},{"iv":"Y+HvrhlJvdwW2+Vb","ct":"XsQyj9klAiSVhLFPVyPUq9LSEbp6N4evOzxSPkf1KC9x15Cq6489dYivhza7KTtf"},{"iv":"RpnObl9TbmWvv2hM","ct":"sAg1iR2KVrTa0P1sYpb10pxlbwHmDtZIdSLJpcTkkqxdSjuvW91BGoKTLjhnGTqR"}],"iv":"pJZ/9roIMSXF1U4n","ct":"qixlodPraHmJxIyB3ssVHuQ/zDMD6bi7FspN0EbILSPqtGhWN3t522g/FK8aeuvaRscT8YSA8Jke0AganRFiP7k86vxm7bkPJfauizHkdAhq1mf8A2/QSpaekKLc9S5M+IjJyT60jXeTnQOlsSgSioa9hp874oD+oqgmSeGhb1Q7kpxHUliYIM8cZTRkcoGNiHjJM9MsJ5x09Tqt7GQFrwXX15tW8J/3wz/MYLgBMHFZ2r6XjjKuZ5INSv3q7h7ig93z7l2wTwAeMy+YN06ze+YQpBCLetoVuZAvdAy6Ne1IysSGSt8fmoh0eb4wYaxBmxBIC/k+tP3b+PgVuUItq0G0pT1EeDfeRUt8JZJwYVMmv3SlHYfBVAIiy3AaULdvMaFxdZCOK9sfHabSixaQmtepGTLwZXsMqIUJ5AvtXUcQOpedKNlAHOfT7XacGF70eBb+FjXS0yslil6VPp5MFluevricaZAVYD6/7qTOekpg5wAnLRqUzYaZapLl6fierfkqbj93AXLPuoJevEu74xIm2RbTba8R7HvNdeNaA3ejx7qJjsfuC/AgUZ6kq3O0zxVr7D970M17gAw7HvNof/c+ixxaWB1n9xKFzqhJwozSuTzxFWcqx5G078zpSelfdzDaJ1169LArsuwxV17tFuzAsISYEZh/lg4crgq+C0w="}</script>
+<script>
+(function(){
+  var P = JSON.parse(document.getElementById('payload').textContent);
+  var KEY = 'unit8hub-key';
+  var ub = function(s){ var b = atob(s), a = new Uint8Array(b.length); for (var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; };
+  var bu = function(a){ var s=''; for (var i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); };
+  var gate = document.getElementById('gate'), m = document.getElementById('m'), btn = document.getElementById('b');
+  if (!window.crypto || !crypto.subtle) { gate.hidden = false; m.className='msg bad'; m.textContent = 'This browser can’t open the hub. Please use an up-to-date Chrome, Edge or Safari.'; btn.disabled = true; return; }
+  function openWith(raw){
+    return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['decrypt'])
+      .then(function(k){ return crypto.subtle.decrypt({name:'AES-GCM', iv: ub(P.iv)}, k, ub(P.ct)); })
+      .then(function(buf){
+        var html = new TextDecoder().decode(buf);
+        // replace this lock screen with the real page once the browser has finished loading it
+        var show = function(){ setTimeout(function(){ document.open(); document.write(html); document.close(); }, 0); };
+        if (document.readyState === 'complete') show(); else window.addEventListener('load', show, {once:true});
+      });
+  }
+  function tryCode(code){
+    var norm = code.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(norm), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){ return crypto.subtle.deriveKey({name:'PBKDF2', salt: ub(P.salt), iterations: P.it, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['decrypt']); })
+      .then(function(kek){
+        var i = 0;
+        function next(){
+          if (i >= P.slots.length) return Promise.reject(new Error('nomatch'));
+          var s = P.slots[i++];
+          return crypto.subtle.decrypt({name:'AES-GCM', iv: ub(s.iv)}, kek, ub(s.ct)).then(function(k){ return new Uint8Array(k); }, next);
+        }
+        return next();
+      });
+  }
+  var saved = null; try { saved = localStorage.getItem(KEY); } catch(e) {}
+  if (saved) {
+    openWith(ub(saved)).catch(function(){ try { localStorage.removeItem(KEY); } catch(e) {} gate.hidden = false; });
+  } else { gate.hidden = false; document.getElementById('c').focus(); }
+  document.getElementById('f').addEventListener('submit', function(e){
+    e.preventDefault();
+    var code = document.getElementById('c').value;
+    if (!code.trim()) return;
+    btn.disabled = true; m.className = 'msg'; m.textContent = 'Checking…';
+    tryCode(code).then(function(raw){
+      try { localStorage.setItem(KEY, bu(raw)); } catch(err) {}
+      m.className = 'msg ok'; m.textContent = 'Code accepted — opening…';
+      return openWith(raw);
+    }).catch(function(){
+      btn.disabled = false; m.className = 'msg bad'; m.textContent = 'That code isn’t right. Check it and try again.';
+    });
+  });
+})();
+</script>
+</body>
+</html>
